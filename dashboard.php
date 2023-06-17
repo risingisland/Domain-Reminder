@@ -1,13 +1,29 @@
 <?php
+	
+	// Set session lifetime to 90 days (in seconds)
+	$secondsPerDay = 24 * 60 * 60;
+	$sessionLifetime = 90 * $secondsPerDay;
 
+	// Set session cookie lifetime
+	session_set_cookie_params($sessionLifetime);
+
+	// Set session garbage collection lifetime
+	ini_set('session.gc_maxlifetime', $sessionLifetime);
+
+	// Start the session
 	session_start();
+	
     require_once("includes/dbconnect.php"); //Load the settings
 	require_once("includes/functions.php"); //Load the functions
 	require_once("includes/languages.php"); //Load the langs
 	$msg="";
 	
-	if($_SESSION["logged_in"]!=true){
+	if (!isset($_SESSION["username"]) && isset($_COOKIE["username"])) {
+		$_SESSION["username"] = $_COOKIE["username"];
+	}
+	if (!isset($_SESSION["username"])) {
 		header("Location: index.php");
+	exit();
 		
 	} else {
 
@@ -178,6 +194,25 @@
 							</div>
 							<!-- /.col -->
 						</div>
+						
+						<?php
+						$filesToCheck = ['install.php', '-install-default-admin.php', '-install-demo-data.php'];
+						$warningMessage = '';
+
+						foreach ($filesToCheck as $file) {
+							if (file_exists($file)) {
+								$warningMessage .= "<i class=\"fas fa-exclamation-triangle text-danger\"></i> <b>Warning:</b> The file <b>'$file'</b> is present. It is advised to delete this file.<br> ";
+							}
+						}
+
+						if (!empty($warningMessage)) {
+							echo "
+						 <div class=\"row mb-2\">
+							<div class=\"col-sm-12\" style=\"padding:10px; text-align:center; background-color:rgba(255, 0, 0, .2);\"> $warningMessage </div>
+						</div>";
+						}
+						?>
+						
 						<!-- /.row -->
 					</div>
 					<!-- /.container-fluid -->
@@ -235,7 +270,7 @@
 			<!-- Main Footer -->
 			<footer class="main-footer">
 				<div class="float-right d-none d-sm-block">
-					<p><b><?php echo $lang['VERSION']; ?>:</b> <?php echo $lang['VERSION_NO']; ?> </p>
+					<p><b><?php echo $lang['VERSION']; ?>:</b> <?php echo $version; ?> </p>
 				</div>
 				<p><strong>Copyright &copy; <?php echo date("Y"); ?> <?php echo $lang['FOOTER_CREDITS']; ?></p>
 			</footer>
