@@ -6,13 +6,8 @@
 	require_once("includes/languages.php"); //Load the langs
 	$msg="";
 	
-	if (!isset($_SESSION["username"]) && isset($_COOKIE["username"])) {
-		$_SESSION["username"] = $_COOKIE["username"];
-	}
-	if (!isset($_SESSION["username"])) {
-		header("Location: index.php");
-	exit();
-	
+	if($_SESSION["logged_in"]!=true){ 
+	header("Location: index.php");
 	} else {
 	//get access level
 	

@@ -2,19 +2,7 @@
 	
 	error_reporting(E_ALL);
 
-	// Set session lifetime to 90 days (in seconds)
-	$secondsPerDay = 24 * 60 * 60;
-	$sessionLifetime = 90 * $secondsPerDay;
-
-	// Set session cookie lifetime
-	session_set_cookie_params($sessionLifetime);
-
-	// Set session garbage collection lifetime
-	ini_set('session.gc_maxlifetime', $sessionLifetime);
-
-	// Start the session
 	session_start();
-
     require_once("includes/dbconnect.php"); //Load the settings
 	require_once("includes/functions.php"); //Load the functions
 	require_once("includes/languages.php"); //Load the langs
@@ -100,7 +88,7 @@
 					<?php echo $msg; ?>
 					<p class="login-box-msg"><?php echo $lang['SIGNIN_TO_START']; ?></p>
 
-					<form method="post" action="index.php" enctype="multipart/form-data" name="ff1" id="login-form">
+					<form method="post" action="index.php" enctype="multipart/form-data" name="ff1">
 						<div class="input-group mb-3">
 							<input type="text" id="username" name="username" placeholder="<?php echo $lang['USERNAME']; ?>" class="form-control"  autofocus>
 							<div class="input-group-append">
@@ -120,7 +108,7 @@
 						<div class="row">
 							<div class="col-8">
 								<div class="icheck-primary">
-									<input type="checkbox" id="savelogin" name="remember_me">
+									<input type="checkbox" id="savelogin">
 									<label for="savelogin">
 									<?php echo $lang['REMEMBER_ME']; ?>
 									</label>
@@ -147,7 +135,7 @@
 		<!-- AdminLTE App -->
 		<script src="assets/js/adminlte.min.js"></script>
 
-		<script src="assets/js/setcookie.js"></script>
+		<script src="assets/js/logout.js"></script>
 
 	</body>
 </html>
