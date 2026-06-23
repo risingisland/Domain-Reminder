@@ -1,0 +1,11 @@
+.login-box-msg{font-weight:600;}
+div.icheck-primary label{font-weight:200 !important;}
+.no-click {pointer-events: none;}
+
+.fixTableHeadAdmin {overflow-x: hidden;overflow-y: auto;max-height: 50vh;}
+.fixTableHeadAdmin thead th {position: sticky;top: 0;background-color:#FFF;}
+
+.fixTableHead {overflow-x: hidden;overflow-y: auto;max-height: 70vh;}
+.fixTableHead thead th {position: sticky;top: 0;background-color:#FFF;}
+
+.paging {display:none;}	
