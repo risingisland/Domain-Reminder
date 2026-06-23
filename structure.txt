@@ -1,0 +1,38 @@
+domains-v4.6/
+├── backup-go.php
+├── backup.php
+├── clients-add.php
+├── clients.php
+├── cron.php
+├── dashboard.php
+├── domains.php
+├── domains-edit.php
+├── domains-expiring.php
+├── help.php
+├── index.php
+├── install.php
+├── logout.php
+├── settings.php
+├── -install-default-admin.php
+├── -install-demo-data.php
+└── backups/
+    ├── .htaccess.php
+    └── index.php
+└── config/
+    ├── .htaccess.php
+    └── index.php
+    └── mysql.php
+└── includes/
+    ├── db.backup.class.php
+    └── dbconnect.php
+    └── domains-delete.php
+    └── functions.php
+    └── lang-menu.php
+    └── languages.php
+└── langs/
+    ├── lang.en.php
+    └── lang.es.php
+    └── lang.pl.php
+└── php_whois/
+    ├── default.php
+    └── custom.php
