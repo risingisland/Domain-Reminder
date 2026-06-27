@@ -61,13 +61,13 @@ $lang['WRONG_LOGIN'] 		= 'Nombre de usuario y/o contraseña incorrectos.';
 
 // Dashboard
 
-$lang['EXPIRING_X_DAYS'] 	= 'Dominios con Vencimiento Dentro de los 35 Días';
+$lang['EXPIRING_X_DAYS'] 	= 'Dominios con Vencimiento Dentro de los 45 Días';
 $lang['DOMAIN_NAME'] 		= 'Nombre del Dominio';
 $lang['EXPERATION_DATE'] 	= 'Fecha de Caducidad';
 $lang['VIEW_MORE'] 			= 'Ver más';
 $lang['DELETE'] 			= 'Eliminar';
 $lang['DELETE_DOMAIN_CONFIRM'] 	= '¿Estás seguro de que quieres eliminar: ';
-$lang['0_DOMAINS_EXPIRING'] = '0 dominios que caducan en los próximos 30 días.';
+$lang['0_DOMAINS_EXPIRING'] = '0 dominios que caducan en los próximos 45 días.';
 
 // Domains
 
@@ -216,7 +216,7 @@ $lang['PASSWORD_UPDATED']	= '¡Contraseña actualiza!';
 $lang['PASSWORD_NOT_MATCH']	= '¡Las contraseñas no coinciden!';
 
 $lang['CRON_NOTI_LANG']		= 'Idioma de notificación CRON (Idioma en el que se enviarán los correos).';
-$lang['CRON_LANG_UPDATED']	= 'Idioma CRON actualizado';
+$lang['CRON_LANG_UPDATED']	= 'Idioma actualizada';
 
 $lang['CHOOSE_YOUR_LANG']	= 'Elige tu idioma preferido';
 

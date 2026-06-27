@@ -61,13 +61,13 @@ $lang['WRONG_LOGIN'] 		= 'Wrong username and/or password.';
 
 // Dashboard
 
-$lang['EXPIRING_X_DAYS'] 	= 'Domains Expiring Within 35 Days';
+$lang['EXPIRING_X_DAYS'] 	= 'Domains Expiring Within 45 Days';
 $lang['DOMAIN_NAME'] 		= 'Domain Name';
 $lang['EXPERATION_DATE'] 	= 'Expiration Date';
 $lang['VIEW_MORE'] 			= 'View More';
 $lang['DELETE'] 			= 'Delete';
 $lang['DELETE_DOMAIN_CONFIRM'] 	= 'Are you sure you want to delete';
-$lang['0_DOMAINS_EXPIRING'] = '0 domains expiring in the next 30 days.';
+$lang['0_DOMAINS_EXPIRING'] = '0 domains expiring in the next 45 days.';
 
 // Domains
 
@@ -216,7 +216,7 @@ $lang['PASSWORD_UPDATED']	= 'Password updated!';
 $lang['PASSWORD_NOT_MATCH']	= 'Passwords don\'t match!';
 
 $lang['CRON_NOTI_LANG']		= 'CRON Notification Language (Language that emails will be sent.)';
-$lang['CRON_LANG_UPDATED']	= 'CRON Lang Updated';
+$lang['CRON_LANG_UPDATED']	= 'Language Updated';
 
 $lang['CHOOSE_YOUR_LANG']	= 'Choose your preferred language';
 
