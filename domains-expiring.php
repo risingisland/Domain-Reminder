@@ -4,15 +4,12 @@
     require_once("includes/dbconnect.php"); //Load the settings
 	require_once("includes/functions.php"); //Load the functions
 	require_once("includes/languages.php"); //Load the langs
+	require_once("config/version.php"); //Load the version number
+	
 	$msg="";
 	
-	if (!isset($_SESSION["username"]) && isset($_COOKIE["username"])) {
-		$_SESSION["username"] = $_COOKIE["username"];
-	}
-	if (!isset($_SESSION["username"])) {
-		header("Location: index.php");
-	exit();
-	
+	if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
+		header("Location: index.php"); exit();
 	} else {
 	//get access level
 	
@@ -34,9 +31,10 @@
 	
 	//PAGES TABLE  GENERATION TO SHOW IN HTML BELOW
 	$sql="SELECT * FROM adm_domains WHERE renewalDate<='".$date_90."' ".$filter;
-	$result=mysqli_query($mysqli,$sql) or die("error getting pages from db");
-	if(mysqli_num_rows($result)>0){
-		while($rr=mysqli_fetch_assoc($result)){
+	$exp_stmt=$pdo->prepare("SELECT * FROM adm_domains WHERE renewalDate <= ? $filter"); $exp_stmt->execute([$date_90]);
+	$exp_rows=$exp_stmt->fetchAll();
+	if(count($exp_rows)>0){
+		foreach($exp_rows as $rr){
 			 		  
 			if($rr["renewalDate"]<=$date_30){ $bgClass="light-red"; } else
 			if($rr["renewalDate"]>$date_30 && $rr["renewalDate"]<=$date_60 ){ $bgClass="light-yellow"; } else

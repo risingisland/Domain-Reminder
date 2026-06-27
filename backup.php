@@ -1,183 +1,44 @@
 <?php
 
-	use function Sodium\add;
-
 	session_start();
 	require_once( "includes/dbconnect.php" ); //Load the settings
 	require_once( "includes/functions.php" ); //Load the functions
 	require_once("includes/languages.php"); //Load the langs
+	require_once("config/version.php"); //Load the version number
+	
 	$msg  = "";
 	$msg2 = "";
 	
-	if (!isset($_SESSION["username"]) && isset($_COOKIE["username"])) {
-		$_SESSION["username"] = $_COOKIE["username"];
-	}
-	if (!isset($_SESSION["username"])) {
-		header("Location: index.php");
-	exit();
-	
+	if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
+		header("Location: index.php"); exit();
 	} else {
 
 		$action = ( ! empty( $_REQUEST["action"] ) ) ? strip_tags( str_replace( "'", "`", $_REQUEST["action"] ) ) : '';
 		$domain = ( ! empty( $_REQUEST["domain"] ) ) ? strip_tags( str_replace( "'", "`", $_REQUEST["domain"] ) ) : '';
 
 		if ( ! empty( $action ) && $action == "restore" ) {
-			if ( $demo ) {
-				$msg = '<div class="alert alert-danger alert-dismissible">
-							<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-							<h5><i class="icon fas fa-exclamation-triangle"></i> Sorry, this functionality disabled in demo.</h5>
-						</div>';
-			} else {
-				if ( ! empty( $_FILES['sqlinput']['name'] ) ) {
-					$photoFileNametmp = $_FILES['sqlinput']['name'];
-					$fileNamePartstmp = explode( ".", $photoFileNametmp );
-					$counter2         = count( $fileNamePartstmp ) - 1;
-					$fileExtensiontmp = strtolower( $fileNamePartstmp[ $counter2 ] ); // part behind last dot
-					if ( $fileExtensiontmp != "txt" ) {
-						$msg = '<div class="alert alert-warning alert-dismissible">
-									<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-									<h5><i class="icon fas fa-exclamation-triangle"></i> Input file must have .txt extension</h5>
-								</div>';
+			if ( ! empty( $_FILES['sqlinput']['name'] ) ) {
+				$ext = strtolower(pathinfo($_FILES['sqlinput']['name'], PATHINFO_EXTENSION));
+				if (!in_array($ext, ['sqlite', 'sqlite3', 'db'])) {
+					$msg = '<div class="alert alert-warning"><h5>Input file must be a .sqlite file</h5></div>';
+				} else {
+					$db_path = __DIR__ . '/config/database.sqlite';
+					if (move_uploaded_file($_FILES['sqlinput']['tmp_name'], $db_path)) {
+						$msg = '<div class="alert alert-success"><h5>Database restored successfully.</h5></div>';
 					} else {
-						$date     = date( "Y-m-d-H-i-s" );
-						$imgPath  = uploadFile( $_FILES['sqlinput'], "backups/upl_adm_backup_" . $date . "." . $fileExtensiontmp );
-						$sqlfile  = "backups/upl_adm_backup_" . $date . "." . $fileExtensiontmp;
-						$contents = file_get_contents( $sqlfile );
-						// Remove comments
-						$comment_patterns = array(
-							'/\/\*.*(\n)*.*(\*\/)?/', //C comments
-							'/^\s*--.*\n/', //comments start with --
-							'/^\s*#.*\n/m', //comments start with #
-						);
-						$contents         = preg_replace( $comment_patterns, "\n", $contents );
-						
-						$err = 0;
-						if ( mysqli_multi_query( $mysqli, $contents ) ) {
-							do {
-								/* getting first result set */
-								if ( $result = mysqli_store_result( $mysqli ) ) {
-									while ( $row = mysqli_fetch_row( $result ) ) {
-									//printf("%s\n", $row[0]);
-									}
-									mysqli_free_result( $result );
-								}
-								/* print devider */
-								if ( mysqli_more_results( $mysqli ) ) {
-								//printf("-----------------\n");
-								}
-							} while ( @mysqli_next_result( $mysqli ) );
-
-							$msg = '<div class="alert alert-success alert-dismissible">
-										<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-										<h5><i class="icon fas fa-check"></i> File uploaded and executed.</h5>
-									</div>';
-						} else {
-							$msg .= '<div class="alert alert-warning alert-dismissible">
-										<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-										<h5><i class="icon fas fa-exclamation-triangle"></i> Unable to run query ' . $contents . ': ' . mysqli_error( $mysqli ) .' </h5>
-									</div> ';
-						}
-
+						$msg = '<div class="alert alert-warning"><h5>Could not restore database. Check config/ is writable.</h5></div>';
 					}
 				}
 			}
 		}
-
-		if ( ! empty( $action ) && $action == "restore-domain" ) {
-			if ( $demo ) {
-				$msg2 = '<div class="alert alert-danger alert-dismissible">
-							<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-							<h5><i class="icon fas fa-exclamation-triangle"></i> Sorry, this functionality disabled in demo.</h5>
-						</div>';
-			} else {
-				if ( ! empty( $_FILES['sqlinput-domain']['name'] ) ) {
-					$photoFileNametmp = $_FILES['sqlinput-domain']['name'];
-					$fileNamePartstmp = explode( ".", $photoFileNametmp );
-					$counter2         = count( $fileNamePartstmp ) - 1;
-					$fileExtensiontmp = strtolower( $fileNamePartstmp[ $counter2 ] ); // part behind last dot
-					if ( $fileExtensiontmp != "txt" ) {
-						$msg = '<div class="alert alert-warning alert-dismissible">
-									<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-									<h5><i class="icon fas fa-exclamation-triangle"></i> Input file must have .txt extension</h5>
-								</div>';
-					} else {
-						$date = date( "Y-m-d-H-i-s" );
-						@mkdir( "backups/" . $domain, 0777, true );
-						$imgPath  = uploadFile( $_FILES['sqlinput-domain'], "backups/" . $domain . "/upl_bckp_" . $date . "." . $fileExtensiontmp );
-						$sqlfile  = "backups/" . $domain . "/upl_bckp_" . $date . "." . $fileExtensiontmp;
-						$contents = file_get_contents( $sqlfile );
-						// Remove comments
-						$comment_patterns = array(
-							'/\/\*.*(\n)*.*(\*\/)?/', //C comments
-							'/\s*--.*\n/', //comments start with --
-							'/\s*#.*\n/', //comments start with #
-						);
-						$contents         = preg_replace( $comment_patterns, "\n", $contents );
-						//Retrieve sql statements
-						$statements = explode( ";", $contents );
-						//$statements = preg_replace("/\s/", ' ', $statements);
-						$host     = "";
-						$user     = "";
-						$password = "";
-						$name     = "";
-						$q        = "SELECT id,clientID FROM adm_domains WHERE domain='" . $domain . "'";
-						$res      = mysqli_query( $mysqli, $q );
-						if ( mysqli_num_rows( $res ) > 0 ) {
-							$rr       = mysqli_fetch_assoc( $res );
-							$id       = $rr["id"];
-							$clientID = $rr["clientID"];
-							$jks      = xorEncrypt( $domain, strtoupper( $domain ) );
-							$q        = "SELECT * FROM adm_data WHERE type='2' AND dd='" . $jks . "'";
-							$res      = mysqli_query( $mysqli, $q );
-							if ( mysqli_num_rows( $res ) > 0 ) {
-								$rr       = mysqli_fetch_assoc( $res );
-								$host     = xorDecrypt( $rr["ee"], $clientID . $domain . $id );
-								$user     = xorDecrypt( $rr["aa"], $domain . $id . $clientID );
-								$password = xorDecrypt( $rr["bb"], $clientID . $domain . $id );
-								$name     = xorDecrypt( $rr["ff"], $clientID . $domain . $id );
-							}
-						}
-						if ( ! empty( $host ) && ! empty( $user ) && ! empty( $password ) && ! empty( $name ) ) {
-							$link = mysql_connect( $host, $user, $password ) or die( "error " );
-							@mysql_select_db( $name );
-							mysqli_query( $mysqli, "SET NAMES utf8" ) or die( "err: " . mysqli_error( $mysqli ) );
-							foreach ( $statements as $query ) {
-								if ( trim( $query ) != '' ) {
-									$result = mysqli_query( $mysqli, $query );
-									if ( ! $result ) {
-										$msg2 .= '<div class="alert alert-warning alert-dismissible">
-													<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-													<h5><i class="icon fas fa-exclamation-triangle"></i> Unable to run query ' . $query . ': ' . mysqli_error( $mysqli ) .'</h5>
-												</div>';
-									}
-								}
-							}
-							$msg2 = '<div class="alert alert-success alert-dismissible">
-										<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-										<h5><i class="icon fas fa-check"></i> File uploaded and executed.</h5>
-									</div>';
-
-							$link = mysql_connect( $db_host, $db_user, $db_password ) or die( "1. Open dbconnect.php and edit mysql variables. <br/> 2. Run install.php " );
-							@mysql_select_db( $db_name );
-							mysqli_query( $mysqli, "SET NAMES utf8" ) or die( "err: " . mysqli_error( $mysqli ) );
-						} else {
-							$msg2 .= '<div class="alert alert-warning alert-dismissible">
-										<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-										<h5><i class="icon fas fa-exclamation-triangle"></i> Error during connection to database process.</h5>
-									</div>';
-						}
-					}
-				}
-			}
-		}
+	
 
 		if ( ! empty( $action ) && $action == "update" ) {
-			//select all domains, put in array, then one by one update whois info.
-			$q      = "SELECT * FROM adm_domains ORDER BY domain ASC";
-			$res    = mysqli_query( $mysqli, $q );
-			$domArr = array();
-			if ( mysqli_num_rows( $res ) > 0 ) {
-				while ( $rr = mysqli_fetch_assoc( $res ) ) {
+			$res = $pdo->query("SELECT * FROM adm_domains ORDER BY domain ASC");
+			$domArr = [];
+			$tmp_rows2 = $res->fetchAll();
+			if ( count($tmp_rows2) > 0 ) {
+				foreach ($tmp_rows2 as $rr) {
 					$domArr[ $rr["id"] ] = $rr["domain"];
 				}
 
@@ -209,16 +70,11 @@
 
 						$whoisreply = addslashes( $whoisreply );
 						$registrar  = addslashes( $registrar );
-						if ( $fail ) {
-							$sql = "UPDATE adm_domains SET registrar='" . $registrar . "',whoisreply='" . $whoisreply . "' WHERE id='" . $key . "'";
-						} else {
-							$sql = "UPDATE adm_domains SET renewalDate='" . $renewalDate . "',registrationDate='" . $registrationDate . "',registrar='" . addslashes($registrar) . "',whoisreply='" . addslashes($whoisreply) . "' WHERE id='" . $key . "'";
-						}
+						if ($fail) { $renewalDate="0000-00-00"; $registrationDate="0000-00-00"; }
 
-						$result = mysqli_query( $mysqli, $sql ) or die( "oopsy, error occured when tryin to update domain." . mysqli_error( $mysqli ) );
+						$upd_bk = $pdo->prepare("UPDATE adm_domains SET renewalDate=?,registrationDate=?,registrar=?,whoisreply=? WHERE id=?"); $upd_bk->execute([$renewalDate,$registrationDate,$registrar,$whoisreply,$key]);
 					} else {
-						$sql = "UPDATE adm_domains SET whoisreply='" . addslashes( $autoWArr[4] ) . "' WHERE id='" . $key . "'";
-						$result = mysqli_query( $mysqli, $sql ) or die( "oopsy, error occured when tryin to update domain." . mysqli_error( $mysqli ) );
+						$upd_bk2 = $pdo->prepare("UPDATE adm_domains SET whoisreply=? WHERE id=?"); $upd_bk2->execute([$autoWArr[4],$key]);
 					}
 				}
 				$msg = '<div class="alert alert-success alert-dismissible">
@@ -231,20 +87,16 @@
 
 		//get all domains with database info for them:
 		$domains_1 = "";
-
-		$q = "SELECT `domain` FROM adm_domains ORDER BY `domain` ASC";
-		$res = mysqli_query( $mysqli, $q ) or die( mysqli_error( $mysqli ) );
-		if ( mysqli_num_rows( $res ) > 0 ) {
-			while ( $rr = mysqli_fetch_assoc( $res ) ) {
-				$jks  = xorEncrypt( $rr["domain"], strtoupper( $rr["domain"] ) );
-				$q2   = "SELECT dd FROM adm_data WHERE type='2' AND dd='" . $jks . "'";
-				$res2 = mysqli_query( $mysqli, $q2 );
-				if ( mysqli_num_rows( $res2 ) > 0 ) {
-					$domains_1 .= "<option value='" . $rr["domain"] . "'>" . $rr["domain"] . "</option>";
-				}
-			}
+	$stmt = $pdo->query("SELECT domain FROM adm_domains ORDER BY domain ASC");
+	foreach ($stmt->fetchAll() as $rr) {
+		$jks = xorEncrypt($rr["domain"], strtoupper($rr["domain"]));
+		$chk = $pdo->prepare("SELECT dd FROM adm_data WHERE type='2' AND dd=?");
+		$chk->execute([$jks]);
+		if ($chk->fetch()) {
+			$domains_1 .= "<option value='" . htmlspecialchars($rr["domain"]) . "'>" . htmlspecialchars($rr["domain"]) . "</option>";
 		}
-		
+	}
+
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo $lang['LANG_CODE']; ?>">
@@ -435,28 +287,9 @@
 																</div>
 															</div>
 														</form>
-														<!--form action="backup.php" enctype="multipart/form-data" method="post" name="ff1">
-															<input type="hidden" value="restore" name="action"/>
-															<input type="file" name="sqlinput"/>
-															<button type="submit" name="create2" id="create2" class="btn btn-block btn-warning">Restore</button>
-														</form-->
 													</td>
 													<td>
 														<p><i class="fas fa-info-circle text-primary"></i> <?php echo $lang['RESTORE_TEXT']; ?></p>
-													</td>
-												</tr>
-											
-												<tr>
-													<td><i class="fas fa-retweet text-danger fa-2x"></i> <strong><?php echo $lang['DB_UPDATE']; ?>:</strong></td>
-													<td>
-														<form action="backup.php" enctype="multipart/form-data" method="post" name="ff1">
-															<input type="hidden" value="update" name="action"/>
-															<button type="submit" name="create2" id="create2" class="btn btn-block btn-danger"><?php echo $lang['UPDATE']; ?></button>
-														</form>
-														
-													</td>
-													<td>
-														<p><i class="fas fa-info-circle text-primary"></i> <?php echo $lang['UPDATE_TEXT']; ?></p>
 													</td>
 												</tr>
 												

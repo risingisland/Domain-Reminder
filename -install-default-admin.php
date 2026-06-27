@@ -1,32 +1,42 @@
 <?php
+/**
+ * -install-default-admin.php
+ * Resets the adm_settings table and restores the default admin account.
+ * DELETE THIS FILE after use.
+ */
 
-include_once "config/mysql.php";
-$mysqli = mysqli_connect($db_host, $db_user, $db_password, $db_name);
+$db_path = __DIR__ . '/config/database.sqlite';
 
-$q = "
+try {
+    $pdo = new PDO('sqlite:' . $db_path);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-SET NAMES utf8;
-SET time_zone = '+00:00';
-SET foreign_key_checks = 0;
-SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
+    $pdo->exec("DROP TABLE IF EXISTS adm_settings");
 
-DROP TABLE IF EXISTS `adm_settings`;
-CREATE TABLE IF NOT EXISTS `adm_settings` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `username` varchar(255) DEFAULT NULL,
-  `password` varchar(255) DEFAULT NULL,
-  `adminEmail` varchar(255) DEFAULT NULL,
-  `adminLang` varchar(2) DEFAULT NULL,
-  `show_debug` int(5) DEFAULT 1,
-  `show_domdata` int(5) DEFAULT 1,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+    $pdo->exec("CREATE TABLE IF NOT EXISTS adm_settings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username VARCHAR(255),
+        password VARCHAR(255),
+        remember_token VARCHAR(64) NOT NULL DEFAULT '',
+        adminEmail VARCHAR(255),
+        adminLang VARCHAR(2),
+        show_debug INTEGER DEFAULT 1,
+        show_domdata INTEGER DEFAULT 1,
+        mail_method VARCHAR(10) NOT NULL DEFAULT 'mail',
+        smtp_host VARCHAR(255) NOT NULL DEFAULT '',
+        smtp_port INTEGER NOT NULL DEFAULT 587,
+        smtp_encryption VARCHAR(10) NOT NULL DEFAULT 'tls',
+        smtp_user VARCHAR(255) NOT NULL DEFAULT '',
+        smtp_pass VARCHAR(500) NOT NULL DEFAULT '',
+        smtp_from_name VARCHAR(255) NOT NULL DEFAULT '',
+        smtp_from_email VARCHAR(255) NOT NULL DEFAULT ''
+    )");
 
-INSERT INTO `adm_settings` (`id`, `username`, `password`, `adminEmail`, `adminLang`, `show_debug`, `show_domdata`) VALUES
-(1, 'admin', '1a1dc91c907325c69271ddf0c944bc72', 'demo@email.com', 'en', 1, 1);
-COMMIT;
+    $stmt = $pdo->prepare("INSERT INTO adm_settings (id, username, password, remember_token, adminEmail, adminLang, show_debug, show_domdata, mail_method, smtp_port, smtp_encryption) VALUES (1, 'admin', '1a1dc91c907325c69271ddf0c944bc72', '', 'demo@email.com', 'en', 1, 1, 'mail', 587, 'tls')");
+    $stmt->execute();
 
-";
+    echo "Admin Reset. Delete this file now.";
 
-$res = mysqli_multi_query($mysqli,$q) or die(mysqli_error($mysqli));
-echo "Admin Reset.";
+} catch (PDOException $e) {
+    echo "Error: " . htmlspecialchars($e->getMessage());
+}

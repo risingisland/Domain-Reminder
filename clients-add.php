@@ -4,18 +4,15 @@
     require_once("includes/dbconnect.php"); //Load the settings
 	require_once("includes/functions.php"); //Load the functions
 	require_once("includes/languages.php"); //Load the langs
+	require_once("config/version.php"); //Load the version number
+	
 	$msg  = "";
 	$msg1 = "";
 	$msg2 = "";
     $msg3 = "";
 	
-	if (!isset($_SESSION["username"]) && isset($_COOKIE["username"])) {
-		$_SESSION["username"] = $_COOKIE["username"];
-	}
-	if (!isset($_SESSION["username"])) {
-		header("Location: index.php");
-	exit();
-	
+	if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
+		header("Location: index.php"); exit();
 	} else {
 	
 		//show page only if admin access level
@@ -49,9 +46,8 @@
 		if(!empty($_REQUEST["edit_page"]) && $_REQUEST["edit_page"]=="yes" && !empty($name)){
 					
 				if(empty($id)){
-					$sql="INSERT INTO adm_clients (dateCreated,`name`,company,comment,job_title,phone,address,email,web) VALUES (NOW(),'".$name."','".$company."','".$comment."','".$job_title."','".$phone."','".$address."','".$email."','".$web."')";
-					$result=mysqli_query($mysqli,$sql) or die("oopsy, error occured when tryin to create new client.");
-					$id = mysqli_insert_id($mysqli);
+					$ins_c = $pdo->prepare("INSERT INTO adm_clients (dateCreated,name,company,comment,job_title,phone,address,email,web) VALUES (datetime('now'),?,?,?,?,?,?,?,?)");
+					$ins_c->execute([$name,$company,$comment,$job_title,$phone,$address,$email,$web]); $id = $pdo->lastInsertId();
 					$msg = '<div class="alert alert-success alert-dismissible">
 								<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
 								<h5><i class="icon fas fa-check"></i> '.$lang['CLIENT_SUCCESS_ADDED'].'</h5>
@@ -62,24 +58,22 @@
 							<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
 							<h5><i class="icon fas fa-check"></i> '.$lang['CLIENT_SUCCESS_UPDATED'].'</h5>
 						</div>';		
-				$sql="UPDATE adm_clients SET name='".$name."',company='".$company."',comment='".$comment."',job_title='".$job_title."',phone='".$phone."',address='".$address."',email='".$email."',web='".$web."' WHERE id='".$id."'";
-				$result=mysqli_query($mysqli,$sql) or die("Oops, an error occured while tryin to update client.");
+				$upd_c = $pdo->prepare("UPDATE adm_clients SET name=?,company=?,comment=?,job_title=?,phone=?,address=?,email=?,web=? WHERE id=?"); $upd_c->execute([$name,$company,$comment,$job_title,$phone,$address,$email,$web,$id]);
 		}
 		if(!empty($id)){
 			if(!empty($_REQUEST["edit_page22"]) && $_REQUEST["edit_page22"]=="yes" && !empty($domain2)){
 
 				$domain2 = sanitize_domain($domain2);
 				//if(empty($id)){
-					$sql="INSERT INTO adm_domains (domain,clientID,dateCreated) VALUES ('".$domain2."','".$id."',NOW())";
-					$result=mysqli_query($mysqli,$sql) or die("Oops, an error occured while tryin to create new domain.");
-					$id2 = mysqli_insert_id($mysqli);
+					$ins_d = $pdo->prepare("INSERT INTO adm_domains (domain,clientID,dateCreated) VALUES (?,?,datetime('now'))");
+					$ins_d->execute([$domain2, $id]);
+					$id2 = $pdo->lastInsertId();
 					$msg2 = '<div class="alert alert-success alert-dismissible">
 								<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
 								<h5><i class="icon fas fa-check"></i> '.$lang['DOMAIN_SUCCESS_ADDED'].'</h5>
 							</div>';
 				
-				$sql="UPDATE adm_domains SET comment='".$comment2."',domain='".$domain2."',registrar='".$registrar2."',renewalDate='".$renewalDate2."',registrationDate='".$registrationDate2."',renew_link='".$renew_link2."', clientID='".$id."' WHERE id='".$id2."'";
-				$result=mysqli_query($mysqli,$sql) or die("oopsy, error occured when tryin to update page.");
+				$upd_d = $pdo->prepare("UPDATE adm_domains SET comment=?,domain=?,registrar=?,renewalDate=?,registrationDate=?,renew_link=?,clientID=? WHERE id=?"); $upd_d->execute([$comment2,$domain2,$registrar2,$renewalDate2,$registrationDate2,$renew_link2,$id,$id2]);
 				
 				
 				if($autoWhois2=="yes" && !empty($domain2)){
@@ -99,18 +93,18 @@
 								</div>'; $fail=true; } 						   
 							
 
-							$sql="UPDATE adm_domains SET renewalDate='".addslashes($renewalDate2)."',registrationDate='".addslashes($registrationDate2)."',registrar='".addslashes($registrar2)."',whoisreply='".addslashes($whoisreply)."' WHERE id='".$id2."'";
+							$upd_w = $pdo->prepare("UPDATE adm_domains SET renewalDate=?,registrationDate=?,registrar=?,whoisreply=? WHERE id=?");
+							$upd_w->execute([$renewalDate2, $registrationDate2, $registrar2, $whoisreply, $id2]);
 
-							
-							$result=mysqli_query($mysqli,$sql) or die("oopsy, error occured when tryin to update domain. 4: ".mysqli_error($mysqli));
+							// executed via $upd_w above
 							if(!$fail){ $msg2 .= '<div class="alert alert-success alert-dismissible">
 								<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
 								<h5><i class="icon fas fa-check"></i> '.$lang['DOMAIN_WHOIS_SUCCESS'].'</h5>
 							</div>'; }
 							
 						} else {
-							$sql="UPDATE adm_domains SET whoisreply='".addslashes($autoWArr[4])."' WHERE id='".$id2."'";
-							$result=mysqli_query($mysqli,$sql) or die("oopsy, error occured when tryin to update domain. ");
+							$upd_w2 = $pdo->prepare("UPDATE adm_domains SET whoisreply=? WHERE id=?");
+							$upd_w2->execute([$autoWArr[4], $id2]);
 							$msg3 .= '<div class="alert alert-warning alert-dismissible">
 										<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
 										<h5><i class="icon fas fa-exclamation-triangle"></i> '.$lang['DOMAIN_WHOIS_FAIL_REG'].'</h5>
@@ -132,26 +126,22 @@
 
 			$filter .= " WHERE clientID='".$id."' ORDER BY $orby $didi";
 			//"delete selected files" action processing.
-			if(!empty($_REQUEST["files_delete"]) && $_REQUEST["files_delete"]=="yes" && isset($_POST['filesToDel'])){
-			$filesToDel = (!empty($_REQUEST["filesToDel"]))?str_replace("'","`",$_REQUEST["filesToDel"]):'';
-				if(is_array($_POST['filesToDel'])){
-					if(join(",", $_POST['filesToDel'])!='') {
-						//delete file from database		
-						$sql="DELETE FROM adm_domains WHERE id IN ('".join("','", $_POST['filesToDel'])."')";
-						$result=mysqli_query($mysqli,$sql) or die("oopsy, error when tryin to delete files 2");
-						$msg1 = '<div class="alert alert-success alert-dismissible">
-									<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-									<h5><i class="icon fas fa-check"></i> '.$lang['SELECTED_DOMAINS_DELETED'].'</h5>
-								</div>';
-					}
-				} 
+			if (!empty($_REQUEST["files_delete"]) && $_REQUEST["files_delete"] == "yes" && isset($_POST["filesToDel"]) && is_array($_POST["filesToDel"])) {
+				$del_ids2 = array_filter(array_map("intval", $_POST["filesToDel"]));
+				if (!empty($del_ids2)) {
+					$ph2 = implode(",", array_fill(0, count($del_ids2), "?"));
+					$pdo->prepare("DELETE FROM adm_domains WHERE id IN ($ph2)")->execute(array_values($del_ids2));
+					$msg1 = '<div class="alert alert-success alert-dismissible">
+							<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+							<h5><i class="icon fas fa-check"></i> '.$lang['SELECTED_DOMAINS_DELETED'].'</h5>
+						</div>';
+				}
 			}
 		
 			//PAGES TABLE  GENERATION TO SHOW IN HTML BELOW
-			$sql="SELECT * FROM adm_domains ".$filter;
-			$result=mysqli_query($mysqli,$sql) or die("error getting pages from db");
-			if(mysqli_num_rows($result)>0){
-				while($rr=mysqli_fetch_assoc($result)){
+			$dom_stmt = $pdo->prepare("SELECT * FROM adm_domains $filter"); $dom_stmt->execute(); $dom_rows=$dom_stmt->fetchAll();
+			if(count($dom_rows)>0){
+				foreach($dom_rows as $rr){
 						  
 					//PERMISSION CHECK - for showing EDIT FILE icon.
 				   
@@ -184,12 +174,10 @@
 			$direction=($_SESSION["adm_domains.direction"]=='DESC')?('ASC'):('DESC');
 		}
 		//select editable user's info and show it for editor.
-		$sSQL = "SELECT id,name,company,comment,job_title,phone,address,email,web FROM adm_clients WHERE id='".$id."'";
-		$result = mysqli_query($mysqli,$sSQL) or die("err: " . mysqli_error($mysqli).$sSQL);
-		if($row = mysqli_fetch_assoc($result)){
+		$cli_sel = $pdo->prepare("SELECT id,name,company,comment,job_title,phone,address,email,web FROM adm_clients WHERE id=?"); $cli_sel->execute([$id]);
+		if($row = $cli_sel->fetch()){
 		  foreach($row as $key =>$value){ $$key=$value;}
 		}
-		mysqli_free_result($result);
 	
 ?>
 <!DOCTYPE html>

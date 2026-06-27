@@ -16,26 +16,21 @@
     require_once("includes/dbconnect.php"); //Load the settings
 	require_once("includes/functions.php"); //Load the functions
 	require_once("includes/languages.php"); //Load the langs
+	require_once("config/version.php"); //Load the version number
+	
 	$msg="";
 	
-	if (!isset($_SESSION["username"]) && isset($_COOKIE["username"])) {
-		$_SESSION["username"] = $_COOKIE["username"];
-	}
-	if (!isset($_SESSION["username"])) {
-		header("Location: index.php");
-	exit();
-		
+	if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
+		header("Location: index.php"); exit();
 	} else {
 
 		$table='';
-		//prepare expiring 35 days table
-		$date_30 = date("Y-m-d",strtotime(date("Y-m-d")." +35 days"));
+		//prepare expiring 45 days table
+		$date_30 = date("Y-m-d",strtotime(date("Y-m-d")." +45 days"));
 		//PAGES TABLE  GENERATION TO SHOW IN HTML BELOW
-		$sql="SELECT * FROM adm_domains WHERE renewalDate<='".$date_30."' ORDER BY renewalDate ASC";
-		$result=mysqli_query($mysqli,$sql) or die("error getting domains from db");
-		
-		if(mysqli_num_rows($result)>0){
-			while($rr=mysqli_fetch_assoc($result)){
+		$stmt30=$pdo->prepare("SELECT * FROM adm_domains WHERE renewalDate <= ? ORDER BY renewalDate ASC"); $stmt30->execute([$date_30]); $rows30=$stmt30->fetchAll();
+		if(count($rows30)>0){
+			foreach($rows30 as $rr){
 				$table .="<tr>";
 				$table .= "<td><a href=\"domains-edit.php?id=".$rr["id"]."\">".$rr["domain"]."</a></td>";
 				$table .= "<td>".date("d M, Y",strtotime($rr["renewalDate"]))."</td>";
@@ -50,11 +45,9 @@
 		$date_180 = date("Y-m-d",strtotime(date("Y-m-d")." +180 days"));
 		$date_365 = date("Y-m-d",strtotime(date("Y-m-d")." +365 days"));
 		//PAGES TABLE  GENERATION TO SHOW IN HTML BELOW
-		$sql="SELECT * FROM adm_domains WHERE renewalDate<='".$date_365."' ORDER BY renewalDate ASC";
-		$result=mysqli_query($mysqli,$sql) or die("error getting domains from db");
-		
-		if(mysqli_num_rows($result)>0){
-			while($rr=mysqli_fetch_assoc($result)){
+		$stmt365=$pdo->prepare("SELECT * FROM adm_domains WHERE renewalDate <= ? ORDER BY renewalDate ASC"); $stmt365->execute([$date_365]); $rows365=$stmt365->fetchAll();
+		if(count($rows365)>0){
+			foreach($rows365 as $rr){
 				$cal .= '{';
 				$cal .= 'startDate: "'.date("Y-m-d",strtotime($rr["renewalDate"])).'",';
 				$cal .= 'endDate: "'.date("Y-m-d",strtotime($rr["renewalDate"])).'",';

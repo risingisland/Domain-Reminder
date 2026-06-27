@@ -4,15 +4,12 @@
     require_once("includes/dbconnect.php"); //Load the settings
 	require_once("includes/functions.php"); //Load the functions
 	require_once("includes/languages.php"); //Load the langs
+	require_once("config/version.php"); //Load the version number
+	
 	$msg="";
 	
-	if (!isset($_SESSION["username"]) && isset($_COOKIE["username"])) {
-		$_SESSION["username"] = $_COOKIE["username"];
-	}
-	if (!isset($_SESSION["username"])) {
-		header("Location: index.php");
-	exit();
-	
+	if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
+		header("Location: index.php"); exit();
 	} else {
 	
 ?>
@@ -199,7 +196,7 @@
 									<li><a href="https://adminlte.io/" target="_blank">AdminLTE</a></li>
 									<li><a href="https://fontawesome.com/" target="_blank">FontAwesome</a></li>
 									<li><a href="https://github.com/SimpleMobileTools/Simple-Calendar" target="_blank">Simple Calendar</a></li>
-									<li><a href="https://github.com/sparc/phpWhois.org" target="_blank">phpWhois</a></li>
+									<li><a href="https://github.com/io-developer/php-whois" target="_blank">PHP WHOIS</a></li>
 								</ul>
 							</div>
 							

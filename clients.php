@@ -4,15 +4,12 @@
     require_once("includes/dbconnect.php"); //Load the settings
 	require_once("includes/functions.php"); //Load the functions
 	require_once("includes/languages.php"); //Load the langs
+	require_once("config/version.php"); //Load the version number
+	
 	$msg="";
 	
-	if (!isset($_SESSION["username"]) && isset($_COOKIE["username"])) {
-		$_SESSION["username"] = $_COOKIE["username"];
-	}
-	if (!isset($_SESSION["username"])) {
-		header("Location: index.php");
-	exit();
-	
+	if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
+		header("Location: index.php"); exit();
 	} else {
 	//get access level
 	
@@ -23,9 +20,9 @@
 	$_SESSION["adm_clients.orderBy"]= (!empty($_REQUEST["orderBy"]))?$_REQUEST["orderBy"]:(isset($_SESSION["adm_clients.orderBy"])?$_SESSION["adm_clients.orderBy"]:"dateCreated");
 	$_SESSION["adm_clients.direction"]= (!empty($_REQUEST["direction"]))?$_REQUEST["direction"]:(isset($_SESSION["adm_clients.direction"])?$_SESSION["adm_clients.direction"]:'DESC');
 
-	$orby = $_SESSION['adm_clients.orderBy'];
-	$didi = $_SESSION['adm_clients.direction'];
-	
+	$allowed_cols = ["name","company","dateCreated","id"];
+	$orby = in_array($_SESSION["adm_clients.orderBy"], $allowed_cols) ? $_SESSION["adm_clients.orderBy"] : "dateCreated";
+	$didi = ($_SESSION["adm_clients.direction"] === "DESC") ? "DESC" : "ASC";
 	$filter .= " ORDER BY $orby $didi";
 	
 	//echo $filter;
@@ -42,10 +39,8 @@
 	$offset = ($pageNum - 1) * $rowsPerPage;
 	//CREATE PAGING LINKS
 	// how many rows we have in database
-	$query   = "SELECT COUNT(id) AS numrows FROM adm_clients ".$filter;
-	$result  = mysqli_query($mysqli,$query) or die('Error, query failed');
-	$row     = mysqli_fetch_array($result, MYSQLI_ASSOC);
-	$numrows = $row['numrows'];
+	$count_stmt = $pdo->query("SELECT COUNT(id) AS numrows FROM adm_clients");
+	$numrows = (int)$count_stmt->fetchColumn();
 	// how many pages we have when using paging?
 	$maxPage = ceil($numrows/$rowsPerPage);
 	// print the link to access each page
@@ -84,26 +79,23 @@
 	}
 	
 	//"delete selected files" action processing.
-	if(!empty($_REQUEST["files_delete"]) && $_REQUEST["files_delete"]=="yes" && isset($_POST['filesToDel'])){
-		$filesToDel = (!empty($_REQUEST["filesToDel"]))?str_replace("'","`",$_REQUEST["filesToDel"]):'';
-		if(is_array($_POST['filesToDel'])){ 
-			if(join(",", $_POST['filesToDel'])!='') {
-				//delete file from database		
-				$sql="DELETE FROM adm_clients WHERE id IN ('".join("','", $_POST['filesToDel'])."')";
-				$result=mysqli_query($mysqli,$sql) or die("oopsy, error when tryin to delete files 2");
-				$msg = '<div class="alert alert-success alert-dismissible">
-							<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-							<h5><i class="icon fas fa-check"></i> '.$lang['CLIENTS_DELETED'].'</h5>
-						</div>';
-			 }
-		} 
+	if(!empty($_REQUEST["files_delete"]) && $_REQUEST["files_delete"]=="yes" && isset($_POST['filesToDel']) && is_array($_POST['filesToDel'])){
+		$ids = array_filter(array_map('intval', $_POST['filesToDel']));
+		if(!empty($ids)){
+			$placeholders = implode(',', array_fill(0, count($ids), '?'));
+			$pdo->prepare("DELETE FROM adm_clients WHERE id IN ($placeholders)")->execute(array_values($ids));
+			$msg = '<div class="alert alert-success alert-dismissible">
+						<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+						<h5><i class="icon fas fa-check"></i> '.$lang['CLIENTS_DELETED'].'</h5>
+					</div>';
+		}
 	}
-	
-	//PAGES TABLE  GENERATION TO SHOW IN HTML BELOW
-	  $sql="SELECT * FROM adm_clients  ".$filter." LIMIT ".$offset.", ".$rowsPerPage;
-	  $result=mysqli_query($mysqli,$sql) or die("error getting pages from db");
-	  if(mysqli_num_rows($result)>0){
-		  while($rr=mysqli_fetch_assoc($result)){
+
+	$stmt = $pdo->prepare("SELECT * FROM adm_clients $filter LIMIT $offset, $rowsPerPage");
+	$stmt->execute();
+	$rows = $stmt->fetchAll();
+	if(count($rows)>0){
+		foreach($rows as $rr){
 			 		  
 			//PERMISSION CHECK - for showing EDIT FILE icon.
 			   
