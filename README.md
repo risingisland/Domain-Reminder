@@ -4,6 +4,8 @@ A self-hosted domain management tool for tracking domain registrations, renewal 
 
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-blue) ![SQLite](https://img.shields.io/badge/Database-SQLite-green) ![License](https://img.shields.io/badge/License-MIT-yellow)
 
+<img width="1920" alt="image" src="https://github.com/user-attachments/assets/6b4aedf5-4bba-46f1-8209-699909dbc259" />
+
 ---
 
 ## Features
