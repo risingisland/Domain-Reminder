@@ -223,4 +223,10 @@ $lang['CHOOSE_YOUR_LANG']	= 'Wybierz preferowany język';
 $lang['VERSION'] 			= 'Wersja';
 $lang['FOOTER_CREDITS'] 	= '<a href="https://www.wiredrabbitweb.com">Wired Rabbit Web</a>.</strong> Wszelkie prawa zastrzeżone.';
 
+// Install file warnings
+$lang['INSTALL_FILE_WARNING_1'] 			= 'Plik';
+$lang['INSTALL_FILE_WARNING_2'] 			= 'jest obecny. Zaleca się jego usunięcie.';
+$lang['INSTALL_FILE_DELETE_CONFIRM'] 			= 'Czy na pewno chcesz usunąć ten plik?';
+$lang['CANCEL'] 			= 'Anuluj';
+
 ?>

@@ -190,19 +190,23 @@
 						
 						<?php
 						$filesToCheck = ['install.php', '-install-default-admin.php', '-install-demo-data.php'];
-						$warningMessage = '';
+						$warningMessages = [];
 
 						foreach ($filesToCheck as $file) {
 							if (file_exists($file)) {
-								$warningMessage .= "<i class=\"fas fa-exclamation-triangle text-danger\"></i> <b>Warning:</b> The file <b>'$file'</b> is present. It is advised to delete this file.<br> ";
+								$deleteUrl = 'delete-install-file.php?file=' . urlencode($file);
+								$warningMessages[] = '<i class="fas fa-exclamation-triangle text-danger"></i> '
+									. $lang['INSTALL_FILE_WARNING_1'] . ' <b>' . htmlspecialchars($file) . '</b> '
+									. $lang['INSTALL_FILE_WARNING_2'] . ' '
+									. '<a href="' . $deleteUrl . '" class="btn btn-sm btn-danger ml-2" style="margin-bottom:10px;">'
+									. '<i class="fas fa-trash"></i> ' . $lang['DELETE'] . '</a>';
 							}
 						}
 
-						if (!empty($warningMessage)) {
-							echo "
-						 <div class=\"row mb-2\">
-							<div class=\"col-sm-12\" style=\"padding:10px; text-align:center; background-color:rgba(255, 0, 0, .2);\"> $warningMessage </div>
-						</div>";
+						if (!empty($warningMessages)) {
+							echo '<div class="row mb-2"><div class="col-sm-12" style="padding:10px; text-align:center; background-color:rgba(255, 0, 0, .2);">';
+							echo implode('<br>', $warningMessages);
+							echo '</div></div>';
 						}
 						?>
 						
