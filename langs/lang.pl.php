@@ -221,7 +221,7 @@ $lang['CRON_LANG_UPDATED']	= 'Language Updated)';
 $lang['CHOOSE_YOUR_LANG']	= 'Wybierz preferowany język';
 
 $lang['VERSION'] 			= 'Wersja';
-$lang['FOOTER_CREDITS'] 	= '<a href="https://www.wiredrabbitweb.com">Wired Rabbit Web</a>.</strong> Wszelkie prawa zastrzeżone.';
+$lang['FOOTER_CREDITS'] 	= '<a href="https://github.com/risingisland/Domain-Reminder" target="_blank">Domain-Reminder</a>.</strong> Wszelkie prawa zastrzeżone.';
 
 // Install file warnings
 $lang['INSTALL_FILE_WARNING_1'] 			= 'Plik';
