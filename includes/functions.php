@@ -229,6 +229,6 @@
         return $Input;
     }
 
-    function dump(mixed $val): void {
+    function dump($val): void {
         print "<pre>" . print_r($val, 1) . "</pre>";
     }

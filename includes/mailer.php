@@ -11,7 +11,10 @@
  *   if ($result !== true) { echo "Failed: $result"; }
  */
 
-function send_mail(string $to, string $subject, string $body): bool|string {
+/**
+ * @return bool|string Returns true on success, or an error message string on failure.
+ */
+function send_mail(string $to, string $subject, string $body) {
     global $pdo;
 
     // Load mail settings from DB
@@ -61,11 +64,11 @@ function send_mail(string $to, string $subject, string $body): bool|string {
             $mail->SMTPAuth    = !empty($cfg['smtp_user']);
             $mail->Username    = $cfg['smtp_user'];
             $mail->Password    = smtp_pass_decrypt($cfg['smtp_pass']);
-            $mail->SMTPSecure  = match($cfg['smtp_encryption']) {
-                'ssl'  => PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS,
-                'tls'  => PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS,
-                default => '',
-            };
+            switch ($cfg['smtp_encryption']) {
+                case 'ssl':  $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS;    break;
+                case 'tls':  $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS; break;
+                default:     $mail->SMTPSecure = ''; break;
+            }
 
             $mail->setFrom($from_email, $from_name);
             $mail->addAddress($to);

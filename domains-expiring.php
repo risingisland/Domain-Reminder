@@ -20,8 +20,9 @@
 	$_SESSION["adm_domains.orderBy"]= (!empty($_REQUEST["orderBy"]))?$_REQUEST["orderBy"]:(!empty($_SESSION["adm_domains.orderBy"])?$_SESSION["adm_domains.orderBy"]:"renewalDate");
 	$_SESSION["adm_domains.direction"]= (!empty($_REQUEST["direction"]))?$_REQUEST["direction"]:(!empty($_SESSION["adm_domains.direction"])?$_SESSION["adm_domains.direction"]:'ASC');
 
-	$orby = $_SESSION['adm_domains.orderBy'];
-	$didi = $_SESSION['adm_domains.direction'];
+	$allowed_cols = ['domain','clientID','registrationDate','renewalDate','registrar','id'];
+	$orby = in_array($_SESSION['adm_domains.orderBy'], $allowed_cols) ? $_SESSION['adm_domains.orderBy'] : 'renewalDate';
+	$didi = ($_SESSION['adm_domains.direction'] === 'DESC') ? 'DESC' : 'ASC';
 	
 	$filter .= " ORDER BY $orby $didi";
 	
@@ -30,7 +31,6 @@
 	$date_90 = date("Y-m-d",strtotime(date("Y-m-d")." +90 days"));	
 	
 	//PAGES TABLE  GENERATION TO SHOW IN HTML BELOW
-	$sql="SELECT * FROM adm_domains WHERE renewalDate<='".$date_90."' ".$filter;
 	$exp_stmt=$pdo->prepare("SELECT * FROM adm_domains WHERE renewalDate <= ? $filter"); $exp_stmt->execute([$date_90]);
 	$exp_rows=$exp_stmt->fetchAll();
 	if(count($exp_rows)>0){
@@ -46,8 +46,8 @@
 			
 			$files_table .= '<td><a href="domains-edit.php?id='.$rr["id"].'">'.$rr["domain"]."</a></td>";
 			$files_table .= "<td>".getClientName($rr["clientID"])."</td>";
-			$files_table .= "<td>".($rr["registrationDate"]!="0000-00-00"?date("d M, Y",strtotime($rr["registrationDate"])):"------")."</td>";
-			$files_table .= "<td>".($rr["renewalDate"]!="0000-00-00"?date("d M, Y",strtotime($rr["renewalDate"])):"------")."</td>";
+			$files_table .= "<td>".(!empty($rr["registrationDate"]) && $rr["registrationDate"] !== "0000-00-00" ? date("d M, Y", strtotime($rr["registrationDate"])) : "------")."</td>";
+			$files_table .= "<td>".(!empty($rr["renewalDate"]) && $rr["renewalDate"] !== "0000-00-00" ? date("d M, Y", strtotime($rr["renewalDate"])) : "------")."</td>";
 			$files_table .= "<td>".$rr["registrar"]."</td>";
 			
 			$files_table .= "<td>".$editable." </td>";
@@ -60,7 +60,7 @@
 		
 	} else { 
 		//0 files found in database. ( end of IF mysqli_num_rows > 0 )
-		$files_table .='<tr><td colspan=\"7\">'.$lang['0_DOMAINS_IN_DB'].'</td></tr>';
+		$files_table .= '<tr><td colspan="7">'.$lang['0_DOMAINS_IN_DB'].'</td></tr>';
 	} 
 
 	$direction=($_SESSION["adm_domains.direction"]=='DESC')?('ASC'):('DESC');
@@ -252,8 +252,8 @@
 										</table>
 									</div>
 					
-									<input type="hidden" name="orderBy" value="<?php $_SESSION["adm_domains.orderBy"]?>">
-									<input type="hidden" name="direction" value="<?php $_SESSION["adm_domains.direction"]?>">
+									<input type="hidden" name="orderBy" value="<?php echo htmlspecialchars($_SESSION["adm_domains.orderBy"]); ?>">
+									<input type="hidden" name="direction" value="<?php echo htmlspecialchars($_SESSION["adm_domains.direction"]); ?>">
 									
 								</form>
 								

@@ -103,7 +103,7 @@ if ($continue && !empty($_REQUEST["install"]) && $_REQUEST['install'] == "yes") 
             <div class="form-group"><p>IMPORTANT: change CHMOD to 644 or 744 for directory "config"!</p></div>';
         $success = true;
 
-        @chmod("config/", 0644);
+        @chmod("config/", 0755);
 
     } catch (PDOException $e) {
         $continue = false;

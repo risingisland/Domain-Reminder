@@ -67,11 +67,11 @@ if ($method === 'smtp') {
         $mail->SMTPAuth   = !empty($s['smtp_user']);
         $mail->Username   = $s['smtp_user'];
         $mail->Password   = smtp_pass_decrypt($s['smtp_pass']);
-        $mail->SMTPSecure = match($s['smtp_encryption']) {
-            'ssl'  => PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS,
-            'tls'  => PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS,
-            default => '',
-        };
+        switch ($s['smtp_encryption']) {
+            case 'ssl':  $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS;    break;
+            case 'tls':  $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS; break;
+                default:     $mail->SMTPSecure = ''; break;
+            }
         $from_email = $s['smtp_from_email'] ?: $to;
         $from_name  = $s['smtp_from_name']  ?: 'Domain Reminder';
         $mail->setFrom($from_email, $from_name);
