@@ -229,4 +229,30 @@ $lang['INSTALL_FILE_WARNING_2'] 			= 'is present. It is advised to delete it.';
 $lang['INSTALL_FILE_DELETE_CONFIRM'] 			= 'Are you sure you want to delete this file?';
 $lang['CANCEL'] 			= 'Cancel';
 
+// Email / SMTP / Cron settings
+$lang['MAIL_SETTINGS_SAVED'] 			= 'Mail settings saved.';
+$lang['MAIL_METHOD'] 			= 'Mail Method';
+$lang['MAIL_METHOD_DESC'] 			= 'PHP mail() uses your server. SMTP uses an external mail server.';
+$lang['FROM_DETAILS'] 			= 'From Details';
+$lang['FROM_NAME'] 			= 'From Name';
+$lang['FROM_EMAIL'] 			= 'From Email';
+$lang['SMTP_SETTINGS'] 			= 'SMTP Settings';
+$lang['SMTP_SETTINGS_DESC'] 			= 'Only required when using SMTP method above.';
+$lang['SMTP_HOST'] 			= 'Host';
+$lang['SMTP_PORT'] 			= 'Port';
+$lang['SMTP_PORT_HINT'] 			= '587 = TLS &nbsp;|&nbsp; 465 = SSL &nbsp;|&nbsp; 25 = none';
+$lang['SMTP_ENCRYPTION'] 			= 'Encryption';
+$lang['SMTP_USERNAME'] 			= 'Username';
+$lang['SMTP_PASSWORD'] 			= 'Password';
+$lang['SMTP_PASSWORD_PLACEHOLDER'] 			= 'Leave blank to keep current';
+$lang['SMTP_PASSWORD_HINT'] 			= 'Stored encrypted. Leave blank to keep the existing password.';
+$lang['SAVE_MAIL_SETTINGS'] 			= 'Save Mail Settings';
+$lang['TEST_EMAIL'] 			= 'Test Email';
+$lang['TEST_EMAIL_DESC'] 			= 'Sends a test email to the Admin Email address set in the Admin tab.';
+$lang['CRON_TOKEN'] 			= 'Cron Token';
+$lang['CRON_TOKEN_HINT'] 			= 'Used to secure the cron notification URL. Click to select and copy.';
+$lang['REGENERATE'] 			= 'Regenerate';
+$lang['REGENERATE_TOKEN_CONFIRM'] 			= 'Regenerate token? Existing cron links and emails will stop working until updated.';
+$lang['CRON_TOKEN_REGENERATED'] = 'Cron token regenerated.';
+
 ?>

@@ -95,7 +95,7 @@
     // Build flash messages after redirect using the now-correct $lang
     if (!empty($_SESSION['settings_saved'])) {
         foreach ($_SESSION['settings_saved'] as $key) {
-            $text = ($key === 'MAIL_SETTINGS_SAVED') ? 'Mail settings saved.' : ($lang[$key] ?? $key);
+            $text = ($key === 'MAIL_SETTINGS_SAVED') ? $lang['MAIL_SETTINGS_SAVED'] : ($lang[$key] ?? $key);
             $msg .= '<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><h5><i class="icon fas fa-check"></i> ' . $text . '</h5></div>';
         }
         unset($_SESSION['settings_saved']);
@@ -239,22 +239,22 @@
                             </div>
                                 <hr>
                                 <div class="form-group row col-sm-8">
-                                    <label class="col-sm-3 col-form-label"><i class="fas fa-clock text-primary"></i> Cron Token:</label>
+                                    <label class="col-sm-3 col-form-label"><i class="fas fa-clock text-primary"></i> <?php echo $lang['CRON_TOKEN']; ?>:</label>
                                     <div class="col-sm-9">
                                         <div class="input-group">
                                             <input type="text" class="form-control form-control-sm" readonly
                                                 value="<?php echo htmlspecialchars($cron_token ?? ''); ?>"
-                                                onclick="this.select();" title="Click to select">
+                                                onclick="this.select();" title="<?php echo $lang['CRON_TOKEN']; ?>">
                                             <div class="input-group-append">
                                                 <button type="submit" name="regen_cron_token" value="1"
                                                     class="btn btn-sm btn-outline-warning"
-                                                    onclick="return confirm('Regenerate token? Existing cron links and emails will stop working until updated.');"
-                                                    title="Regenerate token">
+                                                    onclick="return confirm('<?php echo addslashes($lang['REGENERATE_TOKEN_CONFIRM']); ?>');"
+                                                    title="<?php echo $lang['REGENERATE']; ?>">
                                                     <i class="fas fa-sync"></i>
                                                 </button>
                                             </div>
                                         </div>
-                                        <small class="text-muted">Used to secure the cron notification URL. Click to select and copy.</small>
+                                        <small class="text-muted"><?php echo $lang['CRON_TOKEN_HINT']; ?></small>
                                     </div>
                                 </div>
                                 <hr>
@@ -291,7 +291,7 @@
                         <form action="settings.php" enctype="multipart/form-data" method="post" name="ff_email" class="form-horizontal">
                             <div class="card-body">
 
-                                <h6 class="text-muted mb-3"><i class="fas fa-paper-plane text-primary"></i> Mail Method</h6>
+                                <h6 class="text-muted mb-3"><i class="fas fa-paper-plane text-primary"></i> <?php echo $lang['MAIL_METHOD']; ?></h6>
                                 <div class="form-group row col-sm-8">
                                     <div class="col-sm-3">
                                         <div class="icheck-primary">
@@ -309,40 +309,40 @@
 
                                 <div id="smtp-section">
                                 <hr>
-                                <h6 class="text-muted mb-3"><i class="fas fa-user-circle text-primary"></i> From Details</h6>
+                                <h6 class="text-muted mb-3"><i class="fas fa-user-circle text-primary"></i> <?php echo $lang['FROM_DETAILS']; ?></h6>
 
                                 <div class="form-group row col-sm-8">
-                                    <label class="col-sm-3 col-form-label">From Name:</label>
+                                    <label class="col-sm-3 col-form-label"><?php echo $lang['FROM_NAME']; ?>:</label>
                                     <div class="col-sm-9">
                                         <input type="text" class="form-control" name="smtp_from_name" value="<?php echo htmlspecialchars($smtp_from_name ?? ''); ?>" placeholder="Domain Reminder">
                                     </div>
                                 </div>
                                 <div class="form-group row col-sm-8">
-                                    <label class="col-sm-3 col-form-label">From Email:</label>
+                                    <label class="col-sm-3 col-form-label"><?php echo $lang['FROM_EMAIL']; ?>:</label>
                                     <div class="col-sm-9">
                                         <input type="text" class="form-control" name="smtp_from_email" value="<?php echo htmlspecialchars($smtp_from_email ?? ''); ?>" placeholder="noreply@yourdomain.com">
                                     </div>
                                 </div>
 
                                 <hr>
-                                <h6 class="text-muted mb-3"><i class="fas fa-server text-primary"></i> SMTP Settings</h6>
-                                <p class="text-muted small">Only required when using SMTP method above.</p>
+                                <h6 class="text-muted mb-3"><i class="fas fa-server text-primary"></i> <?php echo $lang['SMTP_SETTINGS']; ?></h6>
+                                <p class="text-muted small"><?php echo $lang['SMTP_SETTINGS_DESC']; ?></p>
 
                                 <div class="form-group row col-sm-8">
-                                    <label class="col-sm-3 col-form-label">Host:</label>
+                                    <label class="col-sm-3 col-form-label"><?php echo $lang['SMTP_HOST']; ?>:</label>
                                     <div class="col-sm-9">
                                         <input type="text" class="form-control" name="smtp_host" value="<?php echo htmlspecialchars($smtp_host ?? ''); ?>" placeholder="smtp.gmail.com">
                                     </div>
                                 </div>
                                 <div class="form-group row col-sm-8">
-                                    <label class="col-sm-3 col-form-label">Port:</label>
+                                    <label class="col-sm-3 col-form-label"><?php echo $lang['SMTP_PORT']; ?>:</label>
                                     <div class="col-sm-5">
                                         <input type="number" class="form-control" name="smtp_port" value="<?php echo (int)($smtp_port ?? 587); ?>" placeholder="587">
-                                        <small class="text-muted">587 = TLS &nbsp;|&nbsp; 465 = SSL &nbsp;|&nbsp; 25 = none</small>
+                                        <small class="text-muted"><?php echo $lang['SMTP_PORT_HINT']; ?></small>
                                     </div>
                                 </div>
                                 <div class="form-group row col-sm-8">
-                                    <label class="col-sm-3 col-form-label">Encryption:</label>
+                                    <label class="col-sm-3 col-form-label"><?php echo $lang['SMTP_ENCRYPTION']; ?>:</label>
                                     <div class="col-sm-5">
                                         <select class="form-control" name="smtp_encryption">
                                             <option value="tls"  <?php echo (($smtp_encryption ?? 'tls') === 'tls')  ? 'selected' : ''; ?>>TLS (STARTTLS)</option>
@@ -352,34 +352,34 @@
                                     </div>
                                 </div>
                                 <div class="form-group row col-sm-8">
-                                    <label class="col-sm-3 col-form-label">Username:</label>
+                                    <label class="col-sm-3 col-form-label"><?php echo $lang['SMTP_USERNAME']; ?>:</label>
                                     <div class="col-sm-9">
                                         <input type="text" class="form-control" name="smtp_user" value="<?php echo htmlspecialchars($smtp_user ?? ''); ?>" placeholder="you@gmail.com" autocomplete="off">
                                     </div>
                                 </div>
                                 <div class="form-group row col-sm-8">
-                                    <label class="col-sm-3 col-form-label">Password:</label>
+                                    <label class="col-sm-3 col-form-label"><?php echo $lang['SMTP_PASSWORD']; ?>:</label>
                                     <div class="col-sm-9">
                                         <input type="password" class="form-control" name="smtp_pass"
                                             value="<?php echo (!empty($smtp_pass)) ? '••••••••' : ''; ?>"
-                                            placeholder="Leave blank to keep current"
+                                            placeholder="<?php echo $lang['SMTP_PASSWORD_PLACEHOLDER']; ?>"
                                             autocomplete="new-password">
-                                        <small class="text-muted">Stored encrypted. Leave blank to keep the existing password.</small>
+                                        <small class="text-muted"><?php echo $lang['SMTP_PASSWORD_HINT']; ?></small>
                                     </div>
                                 </div>
                                 </div><!-- /#smtp-section -->
 
                             </div>
                             <div class="card-footer">
-                                <button type="submit" class="btn btn-primary float-right">Save Mail Settings</button>
+                                <button type="submit" class="btn btn-primary float-right"><?php echo $lang['SAVE_MAIL_SETTINGS']; ?></button>
                                 <input value="yes" name="edit_settings" type="hidden" />
                             </div>
                         </form>
 
                         <hr>
                         <div class="card-body">
-                            <h6 class="text-muted mb-3"><i class="fas fa-vial text-primary"></i> Test Email</h6>
-                            <p class="text-muted small">Sends a test email to the Admin Email address set in the Admin tab.</p>
+                            <h6 class="text-muted mb-3"><i class="fas fa-vial text-primary"></i> <?php echo $lang['TEST_EMAIL']; ?></h6>
+                            <p class="text-muted small"><?php echo $lang['TEST_EMAIL_DESC']; ?></p>
                             <div id="smtp-test-result" class="mb-3" style="display:none;"></div>
                             <button type="button" class="btn btn-outline-secondary mr-2" onclick="testMail('mail')">
                                 <i class="fas fa-paper-plane"></i> Test mail()

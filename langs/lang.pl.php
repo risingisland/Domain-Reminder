@@ -229,4 +229,30 @@ $lang['INSTALL_FILE_WARNING_2'] 			= 'jest obecny. Zaleca się jego usunięcie.'
 $lang['INSTALL_FILE_DELETE_CONFIRM'] 			= 'Czy na pewno chcesz usunąć ten plik?';
 $lang['CANCEL'] 			= 'Anuluj';
 
+// Email / SMTP / Cron settings
+$lang['MAIL_SETTINGS_SAVED'] 			= 'Ustawienia poczty zapisane.';
+$lang['MAIL_METHOD'] 			= 'Metoda wysyłki';
+$lang['MAIL_METHOD_DESC'] 			= 'PHP mail() używa serwera. SMTP używa zewnętrznego serwera pocztowego.';
+$lang['FROM_DETAILS'] 			= 'Dane nadawcy';
+$lang['FROM_NAME'] 			= 'Nazwa nadawcy';
+$lang['FROM_EMAIL'] 			= 'Email nadawcy';
+$lang['SMTP_SETTINGS'] 			= 'Ustawienia SMTP';
+$lang['SMTP_SETTINGS_DESC'] 			= 'Wymagane tylko przy metodzie SMTP.';
+$lang['SMTP_HOST'] 			= 'Host';
+$lang['SMTP_PORT'] 			= 'Port';
+$lang['SMTP_PORT_HINT'] 			= '587 = TLS &nbsp;|&nbsp; 465 = SSL &nbsp;|&nbsp; 25 = brak';
+$lang['SMTP_ENCRYPTION'] 			= 'Szyfrowanie';
+$lang['SMTP_USERNAME'] 			= 'Użytkownik';
+$lang['SMTP_PASSWORD'] 			= 'Hasło';
+$lang['SMTP_PASSWORD_PLACEHOLDER'] 			= 'Pozostaw puste, aby zachować bieżące';
+$lang['SMTP_PASSWORD_HINT'] 			= 'Przechowywane zaszyfrowane. Pozostaw puste, aby zachować hasło.';
+$lang['SAVE_MAIL_SETTINGS'] 			= 'Zapisz ustawienia poczty';
+$lang['TEST_EMAIL'] 			= 'Wyślij testowy email';
+$lang['TEST_EMAIL_DESC'] 			= 'Wysyła testowy email na adres administratora.';
+$lang['CRON_TOKEN'] 			= 'Token Cron';
+$lang['CRON_TOKEN_HINT'] 			= 'Używany do zabezpieczenia URL powiadomień cron. Kliknij, aby skopiować.';
+$lang['REGENERATE'] 			= 'Regeneruj';
+$lang['REGENERATE_TOKEN_CONFIRM'] 			= 'Regenerować token? Istniejące linki cron przestaną działać.';
+$lang['CRON_TOKEN_REGENERATED'] = 'Token cron wygenerowany.';
+
 ?>
