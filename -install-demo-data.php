@@ -70,7 +70,8 @@ try {
         smtp_user VARCHAR(255) NOT NULL DEFAULT '',
         smtp_pass VARCHAR(500) NOT NULL DEFAULT '',
         smtp_from_name VARCHAR(255) NOT NULL DEFAULT '',
-        smtp_from_email VARCHAR(255) NOT NULL DEFAULT ''
+        smtp_from_email VARCHAR(255) NOT NULL DEFAULT '',
+        cron_token VARCHAR(64) NOT NULL DEFAULT ''
     )");
 
     // Demo clients
@@ -97,7 +98,7 @@ try {
 
     // Demo domains
     $domains = [
-        [1, 'MarkMonitor Inc.', 'Google.com', 'Google LLC search engine.', 1, '', 'http://www.markmonitor.com', '2026-09-13', '2026-02-25 10:24:10', '1997-09-15'],
+        [1, 'MarkMonitor Inc.', 'Google.com', 'Google LLC search engine.', 1, '', 'http://www.markmonitor.com', '2021-09-13', '2026-02-25 10:24:10', '1997-09-15'],
         [2, 'MarkMonitor Inc.', 'Amazon.com', 'Amazon e-commerce.', 2, '', 'http://www.markmonitor.com', '2021-10-30', '2026-02-25 10:28:37', '1994-11-01'],
         [3, 'RegistrarSafe, LLC', 'Facebook.com', 'Meta Platforms social network.', 3, '', 'https://www.registrarsafe.com', '2026-03-30', '2026-02-25 10:32:15', '1997-03-29'],
         [4, 'CSC Corporate Domains, Inc.', 'Apple.com', 'Apple Inc. tech company.', 4, '', 'https://www.cscprotectsbrands.com', '2026-02-20', '2026-02-25 10:35:57', '1987-02-19'],
@@ -107,7 +108,8 @@ try {
     foreach ($domains as $d) { $stmt->execute($d); }
 
     // Default admin
-    $pdo->exec("INSERT INTO adm_settings (id, username, password, remember_token, adminEmail, adminLang, show_debug, show_domdata, mail_method, smtp_port, smtp_encryption) VALUES (1, 'admin', '1a1dc91c907325c69271ddf0c944bc72', '', 'demo@email.com', 'en', 1, 1, 'mail', 587, 'tls')");
+    $cron_tok = bin2hex(random_bytes(32));
+    $pdo->prepare("INSERT INTO adm_settings (id, username, password, remember_token, adminEmail, adminLang, show_debug, show_domdata, mail_method, smtp_port, smtp_encryption, cron_token) VALUES (1, 'admin', '1a1dc91c907325c69271ddf0c944bc72', '', 'demo@email.com', 'en', 1, 1, 'mail', 587, 'tls', ?);")->execute([$cron_tok]);
 
     echo "Demo Database Restored. Delete this file now.";
 

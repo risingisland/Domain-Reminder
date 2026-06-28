@@ -38,8 +38,8 @@
 		$autoWhois2		= (!empty($_REQUEST["autoWhois2"]))?strip_tags(str_replace("'","`",$_REQUEST["autoWhois2"])):'';
 		
 		$registrationDate2 = (!empty($_REQUEST["registrationDate2"]))?strip_tags(str_replace("'","`",$_REQUEST["registrationDate2"])):'';
-		if($renewalDate2=="YYYY-MM-DD"){ $renewalDate2="0000-00-00"; }
-		if($registrationDate2=="YYYY-MM-DD"){ $registrationDate2="0000-00-00"; }
+		if($renewalDate2=="YYYY-MM-DD"){ $renewalDate2=""; }
+		if($registrationDate2=="YYYY-MM-DD"){ $registrationDate2=""; }
 
 	
 		//"edit page" action processing.
@@ -86,8 +86,8 @@
 							$registrar2=$autoWArr[3];
 							$whoisreply=$autoWArr[4];
 							$fail = false;
-							if(!is_numeric(str_replace("-","",$registrationDate2))){ $registrationDate2='0000-00-00'; $msg2 .= " Domain whois failed for registration date."; $fail=true; } 
-							if(!is_numeric(str_replace("-","",$renewalDate2))){ $renewalDate2='0000-00-00';  $msg2 .= '<div class="alert alert-warning alert-dismissible">
+							if(!is_numeric(str_replace("-","",$registrationDate2))){ $registrationDate2=''; $msg2 .= " Domain whois failed for registration date."; $fail=true; } 
+							if(!is_numeric(str_replace("-","",$renewalDate2))){ $renewalDate2='';  $msg2 .= '<div class="alert alert-warning alert-dismissible">
 									<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
 									<h5><i class="icon fas fa-exclamation-triangle"></i> '.$lang['DOMAIN_RENEWAL_DATE_FAIL'].'</h5>
 								</div>'; $fail=true; } 						   
@@ -155,8 +155,8 @@
 					$files_table .= '<td><input name="filesToDel[]" type="checkbox" value="'.$rr["id"].'" /></td>';
 					$files_table .= '<td>'.$rr["domain"].'</td>';
 					$files_table .= '<td>'.getClientName($rr["clientID"]).'</td>';
-					$files_table .= '<td>'.($rr["registrationDate"]!="0000-00-00"?date("d M Y",strtotime($rr["registrationDate"])):"------").'</td>';
-					$files_table .= '<td>'.($rr["renewalDate"]!="0000-00-00"?date("d M Y",strtotime($rr["renewalDate"])):"------").'</td>';
+					$files_table .= '<td>'.(!empty($rr["registrationDate"]) && $rr["registrationDate"] !== "0000-00-00" ? date("d M, Y", strtotime($rr["registrationDate"])) : "------").'</td>';
+					$files_table .= '<td>'.(!empty($rr["renewalDate"]) && $rr["renewalDate"] !== "0000-00-00" ? date("d M, Y", strtotime($rr["renewalDate"])) : "------").'</td>';
 					$files_table .= '<td>'.$rr["registrar"].'</td>';
 					$files_table .= '<td>'.$editable.'</td></tr>';
 

@@ -76,12 +76,14 @@ if ($continue && !empty($_REQUEST["install"]) && $_REQUEST['install'] == "yes") 
             smtp_user VARCHAR(255) NOT NULL DEFAULT '',
             smtp_pass VARCHAR(500) NOT NULL DEFAULT '',
             smtp_from_name VARCHAR(255) NOT NULL DEFAULT '',
-            smtp_from_email VARCHAR(255) NOT NULL DEFAULT ''
+            smtp_from_email VARCHAR(255) NOT NULL DEFAULT '',
+            cron_token VARCHAR(64) NOT NULL DEFAULT ''
         )");
         $tt .= '<div class="form-group"><i class="fas fa-check text-success"></i> Created table "adm_settings" (3/4)</div>';
 
-        $stmt = $pdo->prepare("INSERT INTO adm_settings (username, password, remember_token, adminEmail, adminLang, mail_method, smtp_port, smtp_encryption) VALUES (?, ?, '', ?, ?, 'mail', 587, 'tls')");
-        $stmt->execute(['admin', '1a1dc91c907325c69271ddf0c944bc72', 'demo@email.com', 'en']);
+        $cron_tok = bin2hex(random_bytes(32));
+        $stmt = $pdo->prepare("INSERT INTO adm_settings (username, password, remember_token, adminEmail, adminLang, mail_method, smtp_port, smtp_encryption, cron_token) VALUES (?, ?, '', ?, ?, 'mail', 587, 'tls', ?)");
+        $stmt->execute(['admin', '1a1dc91c907325c69271ddf0c944bc72', 'demo@email.com', 'en', $cron_tok]);
         $tt .= '<div class="form-group"><i class="fas fa-check text-success"></i> Default settings record created!</div>';
 
         // adm_data

@@ -16,6 +16,17 @@
         include $lang_file;
     }
 	
+    // Validate token before doing anything
+    $token_row   = $pdo->query("SELECT cron_token FROM adm_settings WHERE id = 1")->fetch(PDO::FETCH_ASSOC);
+    $valid_token = $token_row ? $token_row['cron_token'] : '';
+    $given_token = isset($_REQUEST['token']) ? trim($_REQUEST['token']) : '';
+
+    if (empty($valid_token) || !hash_equals($valid_token, $given_token)) {
+        // Invalid or missing token — return nothing, reveal nothing
+        http_response_code(403);
+        exit();
+    }
+
     if (!empty($_REQUEST["cron"]) && $_REQUEST["cron"] == "do" && !empty($_REQUEST["d"])) {
         $days = (int)$_REQUEST["d"];
 
@@ -39,18 +50,32 @@
                 $message .= '</li>';
             }
             $message .= '</ul>';
-        } else {
-            echo '<li>' . $lang['NO_DOMAINS_EXPIRING'] . '</li>';
         }
         $message .= '</body></html>';
+
+        // Build the resend link for the email (includes token so it works from inbox)
+        $protocol   = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+        $base_url   = $protocol . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
+        $resend_url = $base_url . '/cron.php?cron=do&d=' . $days . '&token=' . urlencode($valid_token);
+        $message   .= '<p style="font-size:12px;color:#999;margin-top:20px;">'
+                    . '<a href="' . htmlspecialchars($resend_url) . '">' . $lang['SEND_NOTICE'] . '</a></p>';
+
         if ($send) {
             require_once('includes/mailer.php');
             $admin_email = getAdminEmail();
             $result = send_mail($admin_email, $subject, $message);
-            if ($result !== true) {
-                echo '<p style="color:red;">Mail error: ' . htmlspecialchars($result) . '</p>';
+            // Show brief result in popup then close
+            if ($result === true) {
+                echo '<p style="color:green;font-family:sans-serif;padding:20px;">
+                        <strong>&#10003; ' . $lang['DOMAIN_NOTICE'] . '</strong><br>
+                        ' . $lang['EMAIL_UPDATED'] . ': ' . htmlspecialchars($admin_email) . '
+                      </p>';
+            } else {
+                echo '<p style="color:red;font-family:sans-serif;padding:20px;">Mail error: ' . htmlspecialchars($result) . '</p>';
             }
-            print $message;
+        } else {
+            echo '<p style="font-family:sans-serif;padding:20px;">' . $lang['NO_DOMAINS_EXPIRING'] . '</p>';
         }
+        echo '<script>setTimeout(function(){ window.close(); }, 2000);</script>';
     }
 ?>

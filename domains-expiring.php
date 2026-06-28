@@ -7,6 +7,10 @@
 	require_once("config/version.php"); //Load the version number
 	
 	$msg="";
+
+	// Load cron token for send notice button
+	$cron_token_row = $pdo->query("SELECT cron_token FROM adm_settings WHERE id = 1")->fetch(PDO::FETCH_ASSOC);
+	$cron_token = $cron_token_row ? $cron_token_row['cron_token'] : '';
 	
 	if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
 		header("Location: index.php"); exit();
@@ -17,21 +21,21 @@
 	$bgClass="even"; // default first row highlighting CSS class
 	$files_table = ""; //var with php generated html table.
 	//sorting
-	$_SESSION["adm_domains.orderBy"]= (!empty($_REQUEST["orderBy"]))?$_REQUEST["orderBy"]:(!empty($_SESSION["adm_domains.orderBy"])?$_SESSION["adm_domains.orderBy"]:"renewalDate");
-	$_SESSION["adm_domains.direction"]= (!empty($_REQUEST["direction"]))?$_REQUEST["direction"]:(!empty($_SESSION["adm_domains.direction"])?$_SESSION["adm_domains.direction"]:'ASC');
+	$_SESSION["adm_domains.orderBy"]   = (!empty($_REQUEST["orderBy"]))   ? $_REQUEST["orderBy"]   : (!empty($_SESSION["adm_domains.orderBy"])   ? $_SESSION["adm_domains.orderBy"]   : "renewalDate");
+	$_SESSION["adm_domains.direction"] = (!empty($_REQUEST["direction"])) ? $_REQUEST["direction"] : (!empty($_SESSION["adm_domains.direction"]) ? $_SESSION["adm_domains.direction"] : 'ASC');
 
-	$allowed_cols = ['domain','clientID','registrationDate','renewalDate','registrar','id'];
+	$allowed_cols = ['domain', 'clientID', 'registrationDate', 'renewalDate', 'registrar', 'id'];
 	$orby = in_array($_SESSION['adm_domains.orderBy'], $allowed_cols) ? $_SESSION['adm_domains.orderBy'] : 'renewalDate';
 	$didi = ($_SESSION['adm_domains.direction'] === 'DESC') ? 'DESC' : 'ASC';
-	
+
 	$filter .= " ORDER BY $orby $didi";
-	
-	$date_30 = date("Y-m-d",strtotime(date("Y-m-d")." +30 days"));
-	$date_60 = date("Y-m-d",strtotime(date("Y-m-d")." +60 days"));	
-	$date_90 = date("Y-m-d",strtotime(date("Y-m-d")." +90 days"));	
-	
-	//PAGES TABLE  GENERATION TO SHOW IN HTML BELOW
-	$exp_stmt=$pdo->prepare("SELECT * FROM adm_domains WHERE renewalDate <= ? $filter"); $exp_stmt->execute([$date_90]);
+
+	$date_30 = date("Y-m-d", strtotime(date("Y-m-d") . " +30 days"));
+	$date_60 = date("Y-m-d", strtotime(date("Y-m-d") . " +60 days"));
+	$date_90 = date("Y-m-d", strtotime(date("Y-m-d") . " +90 days"));
+
+	$exp_stmt = $pdo->prepare("SELECT * FROM adm_domains WHERE renewalDate <= ? $filter");
+	$exp_stmt->execute([$date_90]);
 	$exp_rows=$exp_stmt->fetchAll();
 	if(count($exp_rows)>0){
 		foreach($exp_rows as $rr){
@@ -252,8 +256,8 @@
 										</table>
 									</div>
 					
-									<input type="hidden" name="orderBy" value="<?php echo htmlspecialchars($_SESSION["adm_domains.orderBy"]); ?>">
-									<input type="hidden" name="direction" value="<?php echo htmlspecialchars($_SESSION["adm_domains.direction"]); ?>">
+									<input type="hidden" name="orderBy" value="<?php $_SESSION["adm_domains.orderBy"]?>">
+									<input type="hidden" name="direction" value="<?php $_SESSION["adm_domains.direction"]?>">
 									
 								</form>
 								
@@ -276,7 +280,7 @@
 								<p class="card-text"><?php echo $lang['RENEW_TEXT']; ?></p>
 								
 								<div style="padding-top:20px;">
-									<a href="#" onClick="MyWindow=window.open('cron.php?cron=do&d=45','MyWindow','width=600,height=300'); return false;" class="btn btn-info float-right"><i class="fas fa-paper-plane"></i> <?php echo $lang['SEND_NOTICE']; ?></a>
+									<a href="#" onClick="MyWindow=window.open('cron.php?cron=do&d=45&token=<?php echo urlencode($cron_token); ?>','MyWindow','width=400,height=200'); return false;" class="btn btn-info float-right"><i class="fas fa-paper-plane"></i> <?php echo $lang['SEND_NOTICE']; ?></a>
 								</div>
 							</div>
 						</div>

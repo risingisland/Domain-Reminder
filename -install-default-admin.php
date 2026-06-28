@@ -29,11 +29,13 @@ try {
         smtp_user VARCHAR(255) NOT NULL DEFAULT '',
         smtp_pass VARCHAR(500) NOT NULL DEFAULT '',
         smtp_from_name VARCHAR(255) NOT NULL DEFAULT '',
-        smtp_from_email VARCHAR(255) NOT NULL DEFAULT ''
+        smtp_from_email VARCHAR(255) NOT NULL DEFAULT '',
+        cron_token VARCHAR(64) NOT NULL DEFAULT ''
     )");
 
-    $stmt = $pdo->prepare("INSERT INTO adm_settings (id, username, password, remember_token, adminEmail, adminLang, show_debug, show_domdata, mail_method, smtp_port, smtp_encryption) VALUES (1, 'admin', '1a1dc91c907325c69271ddf0c944bc72', '', 'demo@email.com', 'en', 1, 1, 'mail', 587, 'tls')");
-    $stmt->execute();
+    $cron_tok = bin2hex(random_bytes(32));
+    $stmt = $pdo->prepare("INSERT INTO adm_settings (id, username, password, remember_token, adminEmail, adminLang, show_debug, show_domdata, mail_method, smtp_port, smtp_encryption, cron_token) VALUES (1, 'admin', '1a1dc91c907325c69271ddf0c944bc72', '', 'demo@email.com', 'en', 1, 1, 'mail', 587, 'tls', ?)");
+    $stmt->execute([$cron_tok]);
 
     echo "Admin Reset. Delete this file now.";
 

@@ -79,6 +79,13 @@
                 $warnings[] = 'PASSWORD_NOT_MATCH';
             }
         }
+        // Regenerate cron token if requested
+        if (!empty($_REQUEST['regen_cron_token'])) {
+            $new_token = bin2hex(random_bytes(32));
+            $pdo->prepare("UPDATE adm_settings SET cron_token = ? WHERE id = 1")->execute([$new_token]);
+            $saved[] = 'CRON_TOKEN_REGENERATED';
+        }
+
         // Store keys in session and redirect — messages are built after redirect in new language
         $_SESSION['settings_saved']    = $saved;
         $_SESSION['settings_warnings'] = $warnings;
@@ -100,7 +107,7 @@
         }
         unset($_SESSION['settings_warnings']);
     }
-    $stmt = $pdo->query("SELECT id,username,adminEmail,adminLang,show_debug,show_domdata,mail_method,smtp_host,smtp_port,smtp_encryption,smtp_user,smtp_pass,smtp_from_name,smtp_from_email FROM adm_settings WHERE id = 1");
+    $stmt = $pdo->query("SELECT id,username,adminEmail,adminLang,show_debug,show_domdata,mail_method,smtp_host,smtp_port,smtp_encryption,smtp_user,smtp_pass,smtp_from_name,smtp_from_email,cron_token FROM adm_settings WHERE id = 1");
     $row = $stmt->fetch();
     if ($row) { foreach ($row as $key => $value) { $$key = $value; } }
 ?>
@@ -230,6 +237,26 @@
                                     </div>
                                 </div>
                             </div>
+                                <hr>
+                                <div class="form-group row col-sm-8">
+                                    <label class="col-sm-3 col-form-label"><i class="fas fa-clock text-primary"></i> Cron Token:</label>
+                                    <div class="col-sm-9">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control form-control-sm" readonly
+                                                value="<?php echo htmlspecialchars($cron_token ?? ''); ?>"
+                                                onclick="this.select();" title="Click to select">
+                                            <div class="input-group-append">
+                                                <button type="submit" name="regen_cron_token" value="1"
+                                                    class="btn btn-sm btn-outline-warning"
+                                                    onclick="return confirm('Regenerate token? Existing cron links and emails will stop working until updated.');"
+                                                    title="Regenerate token">
+                                                    <i class="fas fa-sync"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">Used to secure the cron notification URL. Click to select and copy.</small>
+                                    </div>
+                                </div>
                                 <hr>
                                 <div class="form-group col-sm-6">
                                     <label><i class="fas fa-language text-primary"></i> <?php echo $lang['CHOOSE_YOUR_LANG']; ?>:</label>
